@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SparkClean Admin – Price Management</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://unpkg.com/feather-icons/dist/feather.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #22c55e;
+      --accent-dark: #16a34a;
+      --text: #e2e8f0;
+      --text-light: #94a3b8;
+      --border: #334155;
+      --glow: rgba(34,197,94,0.18);
+      --error: #ef4444;
+      --success: #22c55e;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .container { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+    h1 {
+      text-align: center;
+      font-size: 2.4rem;
+      margin-bottom: 32px;
+      background: linear-gradient(90deg, var(--accent), #86efac);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 28px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+      transition: transform 0.3s ease;
+    }
+    .card:hover { transform: translateY(-4px); }
+    label {
+      display: block;
+      margin: 20px 0 8px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+    .required::after { content: " *"; color: var(--error); }
+    input, select {
+      width: 100%;
+      padding: 14px 16px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: white;
+      font-size: 1rem;
+      transition: all 0.2s;
+    }
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--glow);
+    }
+    button {
+      width: 100%;
+      padding: 16px;
+      margin-top: 24px;
+      border: none;
+      border-radius: 12px;
+      background: var(--accent);
+      color: #020617;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    button:hover {
+      background: var(--accent-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px var(--glow);
+    }
+    #status {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 600;
+      transition: all 0.4s;
+    }
+    #status.success { background: rgba(34,197,94,0.15); color: var(--accent); }
+    #status.error   { background: rgba(239,68,68,0.15); color: var(--error); }
+    .prices-table {
+      margin-top: 40px;
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .prices-table th, .prices-table td {
+      padding: 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+    .prices-table th {
+      background: rgba(34,197,94,0.08);
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .prices-table tr:hover { background: rgba(34,197,94,0.05); }
+    .loading { text-align: center; padding: 40px; color: var(--text-light); font-size: 1.1rem; }
+    @media (max-width: 640px) {
+      .prices-table { font-size: 0.9rem; }
+      .prices-table th, .prices-table td { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>SparkClean – Price Management</h1>
+
+  <div class="card">
+    <label class="required">Service Type</label>
+    <select id="serviceSelect" onchange="loadHouseTypes()">
+      <option value="">Select Service</option>
+    </select>
+
+    <label class="required">House Type</label>
+    <select id="houseSelect" onchange="loadCurrentPrices()">
+      <option value="">Select House Type</option>
+    </select>
+
+    <label class="required">Min Price (₦)</label>
+    <input type="number" id="minPrice" min="0" placeholder="e.g. 25000">
+
+    <label class="required">Max Price (₦)</label>
+    <input type="number" id="maxPrice" min="0" placeholder="e.g. 45000">
+
+    <button onclick="updatePrice()" id="updateBtn">Update Price</button>
+
+    <div id="status"></div>
+  </div>
+
+  <div class="card" style="margin-top: 32px;">
+    <h2 style="margin-bottom:16px;color:var(--accent);">Current Prices Overview</h2>
+    <table class="prices-table">
+      <thead>
+        <tr>
+          <th>Service</th>
+          <th>House Type</th>
+          <th>Min – Max (₦)</th>
+        </tr>
+      </thead>
+      <tbody id="pricesBody"></tbody>
+    </table>
+    <div id="tableLoading" class="loading">Loading prices...</div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  feather.replace();
+
+  const SUPABASE_URL = 'https://ywirrdxykhrkigzywnac.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3aXJyZHh5a2hya2lnenl3bmFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MDY5NjcsImV4cCI6MjA4NDQ4Mjk2N30.SWIVus_sEsdDv_K6rhd3_BSpQERvZtz9Es4SJFaMCMU';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let services = [];
+
+  async function loadServices() {
+    const { data, error } = await supabase.from('prices').select('service_type').neq('service_type', null);
+    if (error) {
+      console.error(error);
+      showStatus('Failed to load services', 'error');
+      return;
+    }
+    const set = new Set(data.map(p => p.service_type));
+    services = [...set];
+    const sel = document.getElementById('serviceSelect');
+    sel.innerHTML = '<option value="">Select Service</option>';
+    services.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s;
+      opt.textContent = s;
+      sel.appendChild(opt);
+    });
+  }
+
+  async function loadHouseTypes() {
+    const service = document.getElementById('serviceSelect').value;
+    const houseSel = document.getElementById('houseSelect');
+    houseSel.innerHTML = '<option value="">Select House Type</option>';
+    document.getElementById('minPrice').value = '';
+    document.getElementById('maxPrice').value = '';
+
+    if (!service) return;
+
+    const { data, error } = await supabase
+      .from('prices')
+      .select('house_type, min_price, max_price')
+      .eq('service_type', service);
+    if (error) {
+      console.error(error);
+      return;
+    }
+
+    data.forEach(h => {
+      const opt = document.createElement('option');
+      opt.value = h.house_type;
+      opt.textContent = `\( {h.house_type} (₦ \){h.min_price?.toLocaleString() || 0} – ₦${h.max_price?.toLocaleString() || 0})`;
+      houseSel.appendChild(opt);
+    });
+  }
+
+  async function loadCurrentPrices() {
+    const service = document.getElementById('serviceSelect').value;
+    const house = document.getElementById('houseSelect').value;
+
+    if (!service || !house) {
+      document.getElementById('minPrice').value = '';
+      document.getElementById('maxPrice').value = '';
+      return;
+    }
+
+    const { data, error } = await supabase
+      .from('prices')
+      .select('min_price, max_price')
+      .eq('service_type', service)
+      .eq('house_type', house)
+      .single();
+
+    if (error || !data) {
+      console.error(error);
+      showStatus('Price not found', 'error');
+      return;
+    }
+
+    document.getElementById('minPrice').value = data.min_price || 0;
+    document.getElementById('maxPrice').value = data.max_price || 0;
+  }
+
+  async function updatePrice() {
+    const btn = document.getElementById('updateBtn');
+    const statusEl = document.getElementById('status');
+    btn.disabled = true;
+    btn.textContent = 'Updating...';
+    statusEl.textContent = '';
+
+    const service = document.getElementById('serviceSelect').value.trim();
+    const house   = document.getElementById('houseSelect').value.trim();
+    const minStr  = document.getElementById('minPrice').value.trim();
+    const maxStr  = document.getElementById('maxPrice').value.trim();
+
+    const min = parseInt(minStr);
+    const max = parseInt(maxStr);
+
+    if (!service || !house || isNaN(min) || isNaN(max) || min < 0 || max < min) {
+      showStatus('Please fill all fields correctly (Min ≤ Max)', 'error');
+      resetButton();
+      return;
+    }
+
+    const { error } = await supabase
+      .from('prices')
+      .update({ min_price: min, max_price: max })
+      .eq('service_type', service)
+      .eq('house_type', house);
+
+    if (error) {
+      console.error(error);
+      showStatus('Failed to update price. Check console.', 'error');
+    } else {
+      showStatus(`Updated: ₦\( {min.toLocaleString()} – ₦ \){max.toLocaleString()} for \( {service} ( \){house})`, 'success');
+      loadHouseTypes(); // refresh dropdown with new prices
+      loadAllPrices();  // refresh table
+    }
+
+    resetButton();
+  }
+
+  function resetButton() {
+    const btn = document.getElementById('updateBtn');
+    btn.disabled = false;
+    btn.textContent = 'Update Price';
+  }
+
+  function showStatus(msg, type = 'success') {
+    const el = document.getElementById('status');
+    el.textContent = msg;
+    el.className = type;
+  }
+
+  async function loadAllPrices() {
+    const tbody = document.getElementById('pricesBody');
+    const loading = document.getElementById('tableLoading');
+    tbody.innerHTML = '';
+    loading.style.display = 'block';
+
+    const { data, error } = await supabase
+      .from('prices')
+      .select('service_type, house_type, min_price, max_price')
+      .order('service_type', { ascending: true });
+
+    loading.style.display = 'none';
+
+    if (error || !data?.length) {
+      tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:var(--text-light);">No prices found</td></tr>';
+      return;
+    }
+
+    data.forEach(p => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${p.service_type}</td>
+        <td>${p.house_type}</td>
+        <td>₦\( {(p.min_price || 0).toLocaleString()} – ₦ \){(p.max_price || 0).toLocaleString()}</td>
+      `;
+      tbody.appendChild(row);
+    });
+  }
+
+  // Init
+  loadServices();
+  loadAllPrices();
+</script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SparkClean Admin – Cleaning Tickets Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <link href="https://unpkg.com/feather-icons/dist/feather.css" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #1e293b;
+      --accent: #22c55e;
+      --accent-dark: #16a34a;
+      --text: #e2e8f0;
+      --text-light: #94a3b8;
+      --border: #334155;
+      --glow: rgba(34,197,94,0.15);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+    h1 {
+      text-align: center;
+      font-size: 2.5rem;
+      margin-bottom: 32px;
+      background: linear-gradient(90deg, var(--accent), #86efac);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+      backdrop-filter: blur(8px);
+    }
+    .filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    .filter label { font-weight: 600; color: #cbd5e1; white-space: nowrap; }
+    input, select {
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: #0f172a;
+      color: white;
+      min-width: 140px;
+    }
+    input:focus, select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+    button {
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    button:hover { transform: translateY(-1px); }
+    .btn-apply { background: var(--accent); color: #020617; }
+    .btn-reset { background: #64748b; color: white; }
+    .total-revenue {
+      margin-left: auto;
+      font-size: 1.3rem;
+      font-weight: 800;
+      color: var(--accent);
+    }
+    #ticketsContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 20px;
+    }
+    .ticket-card {
+      background: linear-gradient(135deg, var(--card), #111827);
+      border-radius: 16px;
+      padding: 20px;
+      border: 1px solid var(--border);
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .ticket-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 12px 40px rgba(34,197,94,0.12);
+    }
+    .ticket-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; height: 4px;
+      background: var(--accent);
+      opacity: 0.6;
+    }
+    .ticket-header { font-size: 1.2rem; font-weight: 700; margin-bottom: 12px; color: var(--accent); }
+    .ticket-detail { margin: 6px 0; font-size: 0.95rem; }
+    .ticket-detail strong { color: #cbd5e1; }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+    .status-booked { background: #ca8a04; color: white; }
+    .status-completed { background: var(--accent); color: #020617; }
+    .actions { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn-action {
+      flex: 1;
+      min-width: 110px;
+      text-align: center;
+    }
+    .btn-complete { background: var(--accent); color: #020617; }
+    .btn-download { background: #facc15; color: #020617; }
+    .btn-share { background: #3b82f6; color: white; }
+    .loading { opacity: 0.6; pointer-events: none; text-align: center; padding: 40px; font-size: 1.2rem; }
+    @media (max-width: 640px) {
+      .filter { flex-direction: column; align-items: stretch; }
+      .total-revenue { margin: 12px 0 0; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>SparkClean Admin Dashboard</h1>
+
+  <div class="card filter">
+    <label>Service:</label>
+    <select id="serviceFilter"><option value="">All Services</option></select>
+
+    <label>Status:</label>
+    <select id="statusFilter">
+      <option value="">All</option>
+      <option value="Booked">Booked</option>
+      <option value="Completed">Completed</option>
+    </select>
+
+    <label>Area:</label>
+    <select id="areaFilter">
+      <option value="">All Areas</option>
+      <option>Mainland</option>
+      <option>Mid-Level</option>
+      <option>High-End</option>
+    </select>
+
+    <label>Date:</label>
+    <input type="date" id="dateFilter">
+
+    <button class="btn-apply" onclick="applyFilters()">Apply</button>
+    <button class="btn-reset" onclick="resetFilters()">Reset</button>
+
+    <div class="total-revenue">Total Revenue: <span id="totalRevenue">₦0</span></div>
+  </div>
+
+  <div id="ticketsContainer" class="loading">Loading tickets...</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  feather.replace();
+
+  const SUPABASE_URL = 'https://ywirrdxykhrkigzywnac.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3aXJyZHh5a2hya2lnenl3bmFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MDY5NjcsImV4cCI6MjA4NDQ4Mjk2N30.SWIVus_sEsdDv_K6rhd3_BSpQERvZtz9Es4SJFaMCMU';
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+  let allTickets = [];
+  let services = [];
+  let realtimeChannel = null;
+
+  async function init() {
+    await loadServices();
+    await loadTickets();
+    setupRealtime();
+  }
+
+  async function loadServices() {
+    const { data, error } = await supabase.from('prices').select('service_type').neq('service_type', null);
+    if (error) console.error(error);
+    else {
+      const set = new Set(data.map(p => p.service_type));
+      services = [...set];
+      const sel = document.getElementById('serviceFilter');
+      services.forEach(s => {
+        const opt = document.createElement('option');
+        opt.value = s; opt.textContent = s;
+        sel.appendChild(opt);
+      });
+    }
+  }
+
+  async function loadTickets() {
+    const { data, error } = await supabase
+      .from('tickets')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error(error);
+      document.getElementById('ticketsContainer').innerHTML = '<p style="color:#ef4444;text-align:center;">Failed to load tickets</p>';
+      return;
+    }
+    allTickets = data || [];
+    applyFilters(); // initial display with no filters
+  }
+
+  function applyFilters() {
+    const svc = document.getElementById('serviceFilter').value;
+    const status = document.getElementById('statusFilter').value;
+    const area = document.getElementById('areaFilter').value;
+    const date = document.getElementById('dateFilter').value;
+
+    let filtered = allTickets;
+    if (svc) filtered = filtered.filter(t => t.service_type === svc);
+    if (status) filtered = filtered.filter(t => t.status === status);
+    if (area) filtered = filtered.filter(t => t.area === area);
+    if (date) filtered = filtered.filter(t => t.date === date);
+
+    displayTickets(filtered);
+  }
+
+  function resetFilters() {
+    document.getElementById('serviceFilter').value = '';
+    document.getElementById('statusFilter').value = '';
+    document.getElementById('areaFilter').value = '';
+    document.getElementById('dateFilter').value = '';
+    applyFilters();
+  }
+
+  function displayTickets(tickets) {
+    const container = document.getElementById('ticketsContainer');
+    container.innerHTML = '';
+    let total = 0;
+
+    if (tickets.length === 0) {
+      container.innerHTML = '<p style="text-align:center;padding:40px;color:var(--text-light);">No tickets match the filters</p>';
+      document.getElementById('totalRevenue').textContent = '₦0';
+      return;
+    }
+
+    tickets.forEach(t => {
+      const card = document.createElement('div');
+      card.className = 'ticket-card';
+
+      // Parse revenue (handle range like "₦50,000 – ₦80,000 + ₦5,000")
+      let revenue = 0;
+      const nums = t.estimated_price.match(/\d+/g) || [];
+      if (nums.length >= 2) {
+        revenue = (parseInt(nums[0]) + parseInt(nums[1])) / 2; // avg of min-max
+      } else if (nums.length) {
+        revenue = parseInt(nums[0]);
+      }
+      total += revenue;
+
+      card.innerHTML = `
+        <div class="ticket-header">Ticket #${t.id}</div>
+        <div class="ticket-detail"><strong>Service:</strong> ${t.service_type}</div>
+        <div class="ticket-detail"><strong>Name:</strong> ${t.name}</div>
+        <div class="ticket-detail"><strong>Phone:</strong> ${t.phone}</div>
+        <div class="ticket-detail"><strong>House Type:</strong> ${t.house_type}</div>
+        <div class="ticket-detail"><strong>Area:</strong> ${t.area}</div>
+        <div class="ticket-detail"><strong>Date:</strong> ${t.date || 'N/A'}</div>
+        <div class="ticket-detail"><strong>Time:</strong> ${t.time || 'N/A'}</div>
+        <div class="ticket-detail"><strong>Extras:</strong> ${t.extras == '0' ? 'None' : '₦' + Number(t.extras).toLocaleString()}</div>
+        <div class="ticket-detail"><strong>Est. Price:</strong> ${t.estimated_price}</div>
+        <div class="status-badge ${t.status === 'Completed' ? 'status-completed' : 'status-booked'}">
+          ${t.status}
+        </div>
+        <div class="actions">
+          \( {t.status === 'Booked' ? `<button class="btn-action btn-complete" onclick="markCompleted(' \){t.id}', this)">Mark Completed</button>` : ''}
+          <button class="btn-action btn-download" onclick="downloadPDF(${JSON.stringify(t)})">Download PDF</button>
+          <button class="btn-action btn-share" onclick="shareWhatsApp(${JSON.stringify(t)})">Share WhatsApp</button>
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+    document.getElementById('totalRevenue').textContent = `₦${Math.round(total).toLocaleString()}`;
+  }
+
+  async function markCompleted(id, button) {
+    button.disabled = true;
+    button.textContent = 'Updating...';
+    const { error } = await supabase.from('tickets').update({ status: 'Completed' }).eq('id', id);
+    if (error) {
+      alert('Update failed');
+      button.disabled = false;
+      button.textContent = 'Mark Completed';
+    } else {
+      // Optimistic: reload will catch realtime too
+    }
+  }
+
+  function downloadPDF(t) {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    doc.setFontSize(18);
+    doc.text('SparkClean Ticket', 105, 20, { align: 'center' });
+    let y = 40;
+    [
+      `ID: ${t.id}`,
+      `Service: ${t.service_type}`,
+      `Name: ${t.name}`,
+      `Phone: ${t.phone}`,
+      `House: ${t.house_type}`,
+      `Area: ${t.area}`,
+      `Date: ${t.date || 'N/A'}`,
+      `Time: ${t.time || 'N/A'}`,
+      `Extras: ${t.extras}`,
+      `Price: ${t.estimated_price}`,
+      `Status: ${t.status}`,
+      `Created: ${new Date(t.created_at).toLocaleString()}`
+    ].forEach(line => {
+      doc.text(line, 20, y);
+      y += 10;
+    });
+    doc.save(`SparkClean-Ticket-${t.id}.pdf`);
+  }
+
+  function shareWhatsApp(t) {
+    const msg = `SparkClean Ticket #${t.id}\nService: ${t.service_type}\nName: ${t.name}\nPhone: ${t.phone}\nHouse: ${t.house_type}\nArea: ${t.area}\nDate: ${t.date || 'N/A'}\nTime: ${t.time || 'N/A'}\nExtras: ${t.extras}\nPrice: ${t.estimated_price}\nStatus: ${t.status}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+
+  function setupRealtime() {
+    realtimeChannel = supabase.channel('tickets-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tickets' }, payload => {
+        console.log('Realtime change:', payload);
+        loadTickets(); // refresh on any change (insert/update/delete)
+      })
+      .subscribe();
+  }
+
+  // Init
+  init();
+</script>
+</body>
+</html>

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lagos Sparkle – Book Cleaning Service</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #0f172a;
+      color: #e5e7eb;
+      margin: 0;
+      padding: 0;
+      line-height: 1.5;
+    }
+    .container {
+      max-width: 860px;
+      margin: auto;
+      padding: 20px;
+    }
+    .banner {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .banner img {
+      width: 100%;
+      height: auto;
+      border-radius: 14px;
+      object-fit: cover;
+    }
+    @media (min-width: 768px) {
+      .banner { grid-template-columns: 1fr 1fr; }
+    }
+    .card {
+      background: #020617;
+      border-radius: 14px;
+      padding: 24px;
+      border: 1px solid #334155;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #22c55e;
+    }
+    label {
+      margin-top: 16px;
+      display: block;
+      font-weight: 700;
+      color: #cbd5e1;
+    }
+    input, select, textarea, button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border-radius: 10px;
+      border: 1px solid #334155;
+      background: #0f172a;
+      color: white;
+      font-size: 1rem;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #22c55e;
+      box-shadow: 0 0 0 3px rgba(34,197,94,0.2);
+    }
+    button {
+      background: #22c55e;
+      color: #020617;
+      font-weight: 800;
+      margin-top: 20px;
+      cursor: pointer;
+      border: none;
+    }
+    button:hover {
+      background: #16a34a;
+    }
+    #downloadBtn {
+      background: #facc15;
+      color: #020617;
+      display: none;
+    }
+    .price {
+      margin: 20px 0;
+      font-size: 1.3rem;
+      color: #22c55e;
+      font-weight: 800;
+      text-align: center;
+      padding: 12px;
+      background: rgba(34,197,94,0.1);
+      border-radius: 10px;
+    }
+    .ticket {
+      margin-top: 24px;
+      border: 1px dashed #334155;
+      padding: 16px;
+      border-radius: 12px;
+      background: #0f172a;
+      display: none;
+    }
+    small {
+      color: #94a3b8;
+      display: block;
+      text-align: center;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="banner">
+    <img src="https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800" alt="Clean modern kitchen">
+    <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800" alt="Spotless living room">
+  </div>
+
+  <h1>Book Your Cleaning Service</h1>
+
+  <div class="card">
+    <label>Full Name</label>
+    <input id="name" placeholder="Type Your Name">
+
+    <label>Phone Number</label>
+    <input id="phone" placeholder="XXX-XXX-XXX-XX">
+
+    <label>House Address</label>
+    <textarea id="address" placeholder="Flat 2, Block A, Street Name"></textarea>
+
+    <label>Service Type</label>
+    <select id="service"><option value="">Select</option></select>
+
+    <label>House Type</label>
+    <select id="house"><option value="">Select</option></select>
+
+    <label>Lagos Area</label>
+    <select id="area">
+      <optgroup label="Mainland">
+  <option>Yaba</option>
+  <option>Ikeja</option>
+  <option>Surulere</option>
+  <option>Iba</option>
+  <option>Ojodu</option>
+  <option>Ogba</option>
+  <option>Agege</option>
+  <option>Mushin</option>
+  <option>Ilupeju</option>
+  <option>Maryland</option>
+  <option>Oshodi</option>
+  <option>Ejigbo</option>
+  <option>Isolo</option>
+  <option>Alimosho</option>
+  <option>Egbeda</option>
+  <option>Ikotun</option>
+  <option>Akowonjo</option>
+  <option>Ketu</option>
+  <option>Bariga</option>
+  <option>Somolu</option>
+  <option>Gbagada</option>
+  <option>Shomolu</option>
+  <option>Abule Egba</option>
+  <option>Dopemu</option>
+  <option>Idimu</option>
+  <option>Ayobo</option>
+  <option>Ijegun</option>
+  <option>Festac</option>
+  <option>Amuwo Odofin</option>
+</optgroup>
+      <optgroup label="Mid-Level">
+  <option>Ikoyi</option>
+  <option>Victoria Island</option>
+  <option>Ajah</option>
+  <option>Lekki Phase 2</option>
+  <option>Chevron Drive</option>
+  <option>Oniru Estate</option>
+  <option>Osapa London</option>
+  <option>Agungi</option>
+  <option>Ikate</option>
+  <option>Ilasan</option>
+  <option>Jakande (Lekki)</option>
+  <option>Alausa</option>
+  <option>Maryland</option>
+  <option>Ilupeju</option>
+  <option>Gbagada</option>
+</optgroup>
+
+<optgroup label="High-End">
+  <option>Banana Island</option>
+  <option>Magodo</option>
+  <option>Lekki Phase 1</option>
+  <option>Parkview Estate</option>
+  <option>Osborne Foreshore Estate</option>
+  <option>Victoria Garden City (VGC)</option>
+  <option>Oniru Private Estate</option>
+  <option>Ikoyi Old Ikoyi</option>
+  <option>Ikoyi Bourdillon</option>
+  <option>Eko Atlantic</option>
+  <option>Abraham Adesanya Estate</option>
+</optgroup>
+    </select>
+
+    <label>Select Preferred Date</label>
+    <input type="date" id="date">
+
+    <label>Select Preferred Time</label>
+    <input type="time" id="time">
+
+    <label>Extras</label>
+    <select id="extras">
+      <option value="0">None</option>
+      <option value="5000">Mosquito Treatment (+₦5,000)</option>
+      <option value="10000">Deep Kitchen/Toilet (+₦10,000)</option>
+    </select>
+
+    <div class="price" id="price">Estimated Price: ₦0</div>
+
+    <button onclick="bookTicket()">Book Ticket</button>
+    <button id="downloadBtn" onclick="downloadPDF()">Download Ticket PDF</button>
+
+    <small>Payment is strictly after completion of work.<br>We'll open WhatsApp for instant confirmation & updates.</small>
+
+    <div id="ticket" class="ticket"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+const SUPABASE_URL = 'https://ywirrdxykhrkigzywnac.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl3aXJyZHh5a2hya2lnenl3bmFjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg5MDY5NjcsImV4cCI6MjA4NDQ4Mjk2N30.SWIVus_sEsdDv_K6rhd3_BSpQERvZtz9Es4SJFaMCMU';
+const WHATSAPP_NUMBER = '2347013550569'; // ← CHANGE THIS
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let prices = {};
+let services = [];
+
+// Set minimum date to today
+document.getElementById('date').min = new Date().toISOString().split('T')[0];
+
+async function fetchPrices() {
+  const { data, error } = await supabase.from('prices').select();
+  if (error) {
+    console.error(error);
+    alert('Failed to load prices');
+    return;
+  }
+  
+  prices = {};
+  const serviceSet = new Set();
+  data.forEach(p => {
+    serviceSet.add(p.service_type);
+    if (!prices[p.service_type]) prices[p.service_type] = {};
+    prices[p.service_type][p.house_type] = [p.min_price || 0, p.max_price || 0];
+  });
+
+  services = Array.from(serviceSet);
+  populateServiceSelect();
+  setDefaultValues();
+}
+
+function populateServiceSelect() {
+  const select = document.getElementById('service');
+  select.innerHTML = '<option value="">Select</option>';
+  services.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s;
+    opt.textContent = s;
+    select.appendChild(opt);
+  });
+}
+
+function populateHouseSelect() {
+  const select = document.getElementById('house');
+  select.innerHTML = '<option value="">Select</option>';
+  const svc = document.getElementById('service').value;
+  if (!svc || !prices[svc]) return;
+  Object.keys(prices[svc]).forEach(h => {
+    const opt = document.createElement('option');
+    opt.value = h;
+    opt.textContent = h;
+    select.appendChild(opt);
+  });
+}
+
+function setDefaultValues() {
+  if (services.length > 0) {
+    document.getElementById('service').value = services[0];
+    populateHouseSelect();
+    const firstHouse = Object.keys(prices[services[0]])[0];
+    if (firstHouse) document.getElementById('house').value = firstHouse;
+    updatePrice();
+  }
+}
+
+document.getElementById('service').addEventListener('change', () => {
+  populateHouseSelect();
+  updatePrice();
+});
+document.getElementById('house').addEventListener('change', updatePrice);
+document.getElementById('extras').addEventListener('change', updatePrice);
+
+function updatePrice() {
+  const svc = document.getElementById('service').value;
+  const h = document.getElementById('house').value;
+  const e = parseInt(document.getElementById('extras').value || 0);
+  const priceEl = document.getElementById('price');
+
+  if (!svc || !h) {
+    priceEl.textContent = 'Estimated Price: ₦0';
+    return;
+  }
+  const [min, max] = prices[svc][h];
+  priceEl.textContent = `Estimated Price: ₦\( {min.toLocaleString()} – ₦ \){max.toLocaleString()} + ₦${e.toLocaleString()}`;
+}
+
+async function bookTicket() {
+  const data = {
+    name: document.getElementById('name').value.trim(),
+    phone: document.getElementById('phone').value.trim(),
+    address: document.getElementById('address').value.trim(),
+    service_type: document.getElementById('service').value,
+    house_type: document.getElementById('house').value,
+    area: document.getElementById('area').value,
+    date: document.getElementById('date').value,
+    time: document.getElementById('time').value,
+    extras: document.getElementById('extras').value,
+    estimated_price: document.getElementById('price').textContent,
+    status: 'Booked'
+  };
+
+  if (!data.name || !data.phone || !data.service_type || !data.house_type || !data.date || !data.time) {
+    alert('Please fill all required fields (name, phone, service, house type, date & time)');
+    return;
+  }
+
+  const { data: inserted, error } = await supabase.from('tickets').insert([data]).select().single();
+  if (error) {
+    alert('Booking failed');
+    console.error(error);
+    return;
+  }
+
+  const ticketData = inserted;
+  displayTicket(ticketData);
+  localStorage.setItem('lastTicket', JSON.stringify(ticketData));
+
+  // Open WhatsApp with pre-filled message
+  const message = encodeURIComponent(
+    `Hello! I just booked a cleaning service:\n\n` +
+    `Ticket ID: #${ticketData.id}\n` +
+    `Service: ${ticketData.service_type}\n` +
+    `House Type: ${ticketData.house_type}\n` +
+    `Area: ${ticketData.area}\n` +
+    `Address: ${ticketData.address}\n` +
+    `Preferred Date: ${ticketData.date}\n` +
+    `Preferred Time: ${ticketData.time}\n` +
+    `Extras: ${ticketData.extras === '0' ? 'None' : '₦' + Number(ticketData.extras).toLocaleString()}\n` +
+    `Estimated Price: ${ticketData.estimated_price.replace('Estimated Price: ', '')}\n\n` +
+    `Please confirm or let me know if any adjustments are needed. Thank you!`
+  );
+
+  window.open(`https://wa.me/\( {WHATSAPP_NUMBER}?text= \){message}`, '_blank');
+
+  alert('Booking successful! WhatsApp opened for confirmation.');
+}
+
+function displayTicket(t) {
+  const div = document.getElementById('ticket');
+  div.innerHTML = `
+    <b>Ticket ID:</b> ${t.id}<br>
+    <b>Service:</b> ${t.service_type}<br>
+    <b>Name:</b> ${t.name}<br>
+    <b>Phone:</b> ${t.phone}<br>
+    <b>Address:</b> ${t.address}<br>
+    <b>House Type:</b> ${t.house_type}<br>
+    <b>Area:</b> ${t.area}<br>
+    <b>Preferred Date:</b> ${t.date}<br>
+    <b>Preferred Time:</b> ${t.time}<br>
+    <b>Extras:</b> ${t.extras}<br>
+    <b>Estimated Price:</b> ${t.estimated_price}<br>
+    <b>Status:</b> ${t.status}<br>
+    <small>Issued: ${new Date().toLocaleString()}</small>
+  `;
+  div.style.display = 'block';
+  document.getElementById('downloadBtn').style.display = 'block';
+}
+
+function downloadPDF() {
+  const t = JSON.parse(localStorage.getItem('lastTicket'));
+  if (!t) return;
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  let y = 20;
+  doc.setFontSize(16);
+  doc.text('CLEANING TICKET', 105, y, { align: 'center' });
+  y += 15;
+
+  doc.setFontSize(12);
+  const lines = [
+    `Ticket ID: ${t.id}`,
+    `Service: ${t.service_type}`,
+    `Name: ${t.name}`,
+    `Phone: ${t.phone}`,
+    `Address: ${t.address}`,
+    `House Type: ${t.house_type}`,
+    `Area: ${t.area}`,
+    `Date: ${t.date}`,
+    `Time: ${t.time}`,
+    `Extras: ${t.extras}`,
+    `Estimated Price: ${t.estimated_price}`,
+    `Status: ${t.status}`,
+    `Issued: ${new Date().toLocaleString()}`
+  ];
+
+  lines.forEach(line => {
+    doc.text(line, 20, y);
+    y += 10;
+  });
+
+  doc.save(`Ticket-${t.id}.pdf`);
+}
+
+fetchPrices();
+</script>
+</body>
+</html>
